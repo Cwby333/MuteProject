@@ -1,0 +1,73 @@
+services:
+  users:
+    image: users:1.0
+    container_name: users
+    networks:
+      - app
+    links:
+      - postgres
+    # Comment out ports to prevent external access
+    # ports:
+    #   - 8888:8888
+    entrypoint: "./main"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres
+    container_name: users-postgres
+    networks:
+      - app
+    # Comment out ports to prevent external access
+    # ports:
+    #   - 6000:6000
+    env_file:
+      - ".env"
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PG_DATA=/var/lib/postgresql/data
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 5
+      start_period: 30s
+      timeout: 5s  
+    restart: unless-stopped
+  
+  redis:
+    image: redis
+    container_name: users-redis
+    networks:
+      - app
+    env_file:
+      - ".env"
+    environment:
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 5s
+      start_period: 30s
+      timeout: 10s
+      retries: 5 
+    restart: unless-stopped
+
+volumes:
+  postgres:
+    driver: local
+  redis:
+    driver: local
+
+networks:
+  app:
+    driver: bridge

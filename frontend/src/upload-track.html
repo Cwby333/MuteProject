@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mute - Загрузка трека</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <style>
+        .upload-container {
+            max-width: 800px;
+            margin: 50px auto;
+        }
+        
+        .upload-box {
+            background-color: #181818;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+        
+        .upload-title {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .upload-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #5e17eb, #8a63d2);
+            border-radius: 3px;
+        }
+        
+        #cover-preview img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        #track-preview audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .form-label {
+            color: #b3b3b3;
+            font-weight: 500;
+        }
+        
+        .btn-upload {
+            background: linear-gradient(145deg, #5e17eb, #8a63d2);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-upload:hover {
+            background: linear-gradient(145deg, #6d30f5, #9b7be0);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+  <div class="header-wrapper d-flex justify-content-between align-items-center">
+    <div class="logo">
+      <a href="index.html"><img src="../static/images/mute-512.webp" alt="Логотип" style="height: 50px;"></a>
+    </div>
+    <div class="header-links d-flex align-items-center">
+      <a href="index.html" class="text-white me-3"><i class="fas fa-home me-2"></i>Главная</a>
+      <a href="favorites.html" class="text-white me-3"><i class="fas fa-heart me-2"></i>Избранное</a>
+      <div class="auth-section">
+        <!-- Здесь будет отображаться информация о пользователе или кнопки входа -->
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container upload-container">
+  <div class="upload-box">
+    <h1 class="upload-title">Загрузка трека</h1>
+    
+    <div class="alert alert-info mb-4">
+      <i class="fas fa-info-circle me-2"></i> Вы можете загрузить свой трек, заполнив форму ниже.
+    </div>
+    
+    <form id="upload-track-form">
+      <div class="mb-4">
+        <label for="title" class="form-label">Название трека</label>
+        <input type="text" class="form-control bg-dark text-white border-secondary" id="title" placeholder="Введите название трека" required>
+      </div>
+      
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <label for="cover" class="form-label">Обложка трека</label>
+          <input type="file" class="form-control bg-dark text-white border-secondary" id="cover" accept="image/*" required>
+          <small class="text-muted">Рекомендуемый размер: 500×500 пикселей, формат: JPEG или PNG</small>
+          <div class="mt-3" id="cover-preview"></div>
+        </div>
+        
+        <div class="col-md-6">
+          <label for="track" class="form-label">Аудио файл</label>
+          <input type="file" class="form-control bg-dark text-white border-secondary" id="track" accept="audio/*" required>
+          <small class="text-muted">Максимальный размер: 20 МБ, форматы: MP3, WAV, OGG</small>
+          <div class="mt-3" id="track-preview"></div>
+        </div>
+      </div>
+      
+      <div class="alert alert-danger d-none" id="error-message"></div>
+      <div class="alert alert-success d-none" id="success-message"></div>
+      
+      <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <button type="button" class="btn btn-outline-secondary me-md-2" onclick="window.location.href='index.html'">Отмена</button>
+        <button type="submit" class="btn btn-success btn-upload" id="upload-btn">
+          <i class="fas fa-cloud-upload-alt me-2"></i>Загрузить трек
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+<script src="js/auth.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Проверка авторизации
+    if (!isLoggedIn()) {
+      document.getElementById('upload-track-form').innerHTML = `
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i> Для загрузки треков необходимо 
+          <a href="login.html" class="alert-link">войти в систему</a>.
+        </div>
+      `;
+      return;
+    }
+    
+    // Показать превью обложки
+    document.getElementById('cover').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('cover-preview');
+          preview.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="max-height: 200px">`;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+    
+    // Показать аудио плеер для превью трека
+    document.getElementById('track').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('track-preview');
+          preview.innerHTML = `<audio controls><source src="${e.target.result}"></audio>`;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+    
+    // Обработка отправки формы
+    document.getElementById('upload-track-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Получаем данные из localStorage
+      const userData = JSON.parse(localStorage.getItem('user')) || {};
+      
+      // Более детальная диагностика
+      console.log('Данные пользователя из localStorage:', userData);
+      
+      if (!userData.id) {
+        // Пробуем получить ID через API
+        const token = localStorage.getItem('jwt-access-token');
+        
+        if (token) {
+          try {
+            const userResponse = await fetch('http://localhost/user/get', {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            
+            if (userResponse.ok) {
+              const userInfo = await userResponse.json();
+              console.log('Данные пользователя из API:', userInfo);
+              
+              if (userInfo.id) {
+                // Обновляем локальные данные
+                userData.id = userInfo.id;
+                localStorage.setItem('user', JSON.stringify(userData));
+                console.log('ID пользователя обновлен:', userData.id);
+              } else {
+                throw new Error('ID пользователя не найден в ответе API');
+              }
+            } else {
+              throw new Error(`Ошибка получения данных пользователя: ${userResponse.status}`);
+            }
+          } catch (error) {
+            console.error('Ошибка при получении данных пользователя:', error);
+            showError('Не удалось определить ID пользователя. Пожалуйста, войдите в систему снова.');
+            return;
+          }
+        } else {
+          showError('Отсутствует токен авторизации. Пожалуйста, войдите в систему снова.');
+          return;
+        }
+      }
+      
+      const userId = userData.id;
+      console.log('Используем ID пользователя для загрузки:', userId);
+      
+      const formData = new FormData();
+      formData.append('title', document.getElementById('title').value);
+      formData.append('cover', document.getElementById('cover').files[0]);
+      formData.append('track', document.getElementById('track').files[0]);
+      
+      // Проверка содержимого FormData
+      console.log('Проверка FormData:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name + ' (' + pair[1].size + ' bytes)' : pair[1]));
+      }
+      
+      const uploadBtn = document.getElementById('upload-btn');
+      const originalBtnText = uploadBtn.innerHTML;
+      uploadBtn.disabled = true;
+      uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Загрузка...';
+      
+      try {
+        // Получаем JWT токен
+        const token = localStorage.getItem('jwt-access-token');
+        if (!token) {
+          throw new Error('Отсутствует токен авторизации');
+        }
+        
+        console.log('Отправка запроса на URL:', `http://localhost/track/${userId}`);
+        console.log('Токен авторизации:', token.substring(0, 10) + '...');
+        
+        const response = await fetch(`http://localhost/track/${userId}`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }).catch(error => {
+          console.error('Ошибка fetch:', error);
+          if (error.message.includes('Failed to fetch')) {
+            throw new Error('Ошибка соединения с сервером. Возможно, проблема с CORS. Попробуйте открыть сайт через localhost вместо 127.0.0.1');
+          }
+          throw error;
+        });
+        
+        // Если сервер вернул ответ, обрабатываем его
+        if (response) {
+          console.log('Статус ответа:', response.status);
+          console.log('Заголовки ответа:', [...response.headers.entries()]);
+
+          if (!response.ok) {
+            // If the response is not OK (status code >= 400), handle it as an error
+            let errorMessage = `Ошибка ${response.status}: ${response.statusText}`;
+            try {
+              // Try to read the error body as text, as Go's http.Error sends plain text
+              const errorText = await response.text();
+              console.error('Текст ошибки от сервера:', errorText);
+              // Use the server's text error message if available
+              errorMessage = errorText || errorMessage;
+            } catch (e) {
+              console.error("Не удалось прочитать тело ответа ошибки", e);
+              // Fallback to status text if reading body fails
+            }
+            console.error('Ответ сервера (ошибка):', errorMessage);
+            throw new Error(errorMessage); // Throw the obtained error message
+          }
+
+          // Only parse JSON if response is ok (status code 2xx)
+          const result = await response.json();
+          console.log('Ответ сервера (успех):', result);
+
+          showSuccess('Трек успешно загружен! Через несколько секунд вы будете перенаправлены на главную страницу.');
+          document.getElementById('upload-track-form').reset();
+          document.getElementById('cover-preview').innerHTML = '';
+          document.getElementById('track-preview').innerHTML = '';
+          
+          // Перенаправление на главную страницу через 3 секунды
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 3000);
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке:', error);
+        showError(error.message || 'Ошибка при загрузке трека');
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = originalBtnText;
+      }
+    });
+    
+    function showError(message) {
+      const errorElement = document.getElementById('error-message');
+      errorElement.textContent = message;
+      errorElement.classList.remove('d-none');
+      document.getElementById('success-message').classList.add('d-none');
+      window.scrollTo({ top: errorElement.offsetTop - 100, behavior: 'smooth' });
+    }
+    
+    function showSuccess(message) {
+      const successElement = document.getElementById('success-message');
+      successElement.textContent = message;
+      successElement.classList.remove('d-none');
+      document.getElementById('error-message').classList.add('d-none');
+      window.scrollTo({ top: successElement.offsetTop - 100, behavior: 'smooth' });
+    }
+  });
+</script>
+
+</body>
+</html> 

@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN version_credentials int not null default 1;

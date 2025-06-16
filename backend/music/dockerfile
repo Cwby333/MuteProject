@@ -1,0 +1,47 @@
+# syntax=docker/dockerfile:1
+
+####################################
+# 1) Builder stage — на Debian‑glibc
+####################################
+FROM golang:1.24-bullseye AS builder
+
+# ставим git и dev‑пакет librdkafka для CGO
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      git \
+      librdkafka-dev \
+      build-essential \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# кэшируем модули
+COPY go.mod go.sum ./
+RUN go mod download
+
+# копируем весь исходник
+COPY . .
+
+# собираем бинарник с CGO_ENABLED=1 (по умолчанию)
+RUN go build -ldflags="-s -w" -o cmd/main ./cmd/main.go
+
+####################################
+# 2) Runtime stage — тоже на Debian‑glibc
+####################################
+FROM debian:bullseye-slim
+
+# нужен ca‑certificates для TLS
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app/cmd
+
+# копируем собранный бинарник и миграции
+COPY --from=builder /app/cmd/main .
+COPY --from=builder /app/db/migrations /app/db/migrations
+
+EXPOSE 50051
+
+ENTRYPOINT ["./main"]

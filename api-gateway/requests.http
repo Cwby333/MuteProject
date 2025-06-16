@@ -1,0 +1,15 @@
+GET http://localhost/tracks
+###
+GET http://localhost/users
+###
+GET http://localhost/play/santa-klaus
+###
+GET http://localhost/user/1/favorites
+###
+POST http://localhost/user/track/favorite/1/1
+###
+DELETE http://localhost/user/track/favorite/1/1
+###
+POST http://localhost/user/register
+###
+POST http://localhost/user/1/login

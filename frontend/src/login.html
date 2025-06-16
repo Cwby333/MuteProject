@@ -1,0 +1,205 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mute - Вход</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <div class="header-wrapper d-flex justify-content-between align-items-center">
+    <div class="logo">
+      <a href="index.html"><img src="../static/images/mute-512.webp" alt="Логотип" style="height: 50px;"></a>
+    </div>
+    <div class="header-links">
+      <a href="index.html" class="text-white me-3"><i class="fas fa-home me-2"></i>Главная</a>
+    </div>
+  </div>
+</header>
+
+<div class="login-container">
+  <div class="login-box">
+    <div class="text-center mb-4">
+      <img src="../static/images/mute-512.webp" alt="Mute Logo" class="mute-logo">
+      <h1 class="login-title">Войти в Mute</h1>
+    </div>
+
+    <!-- Разделитель -->
+    <div class="divider mb-4">
+      <hr class="divider-line">
+    </div>
+
+    <!-- Форма для ввода email и пароля -->
+    <form id="loginForm">
+      <div class="mb-3">
+        <label for="username" class="form-label">Имя пользователя</label>
+        <input type="text" class="form-control" id="username" placeholder="Введите email или имя пользователя">
+      </div>
+      <div class="mb-4">
+        <label for="password" class="form-label">Пароль</label>
+        <input type="password" class="form-control" id="password" placeholder="Введите пароль">
+      </div>
+      <div class="mb-3 text-danger" id="error-message"></div>
+      <button type="submit" class="btn btn-success btn-block mb-4 login-btn">Войти</button>
+    </form>
+
+    <!-- Ссылки -->
+    <div class="text-center">
+      <p class="forgot-password"><a href="#">Забыли пароль?</a></p>
+      <p class="signup-text">Нету аккаунта? <a href="register.html">Зарегестрируйтесь в Mute</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+<script src="js/auth.js"></script>
+
+<script>
+  // Обработчик отправки формы
+  document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Предотвращаем стандартную отправку формы
+    loginUser();
+  });
+
+  async function loginUser() {
+    // Получаем значения из формы
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const errorMessage = document.getElementById('error-message');
+    
+    // Проверяем, что поля заполнены
+    if (!username || !password) {
+      errorMessage.textContent = 'Пожалуйста, заполните все поля';
+      return;
+    }
+    
+    // Показываем анимацию загрузки на кнопке
+    const loginButton = document.querySelector('.login-btn');
+    const originalButtonText = loginButton.innerHTML;
+    loginButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Вход...';
+    loginButton.disabled = true;
+    
+    // Формируем данные для отправки
+    const data = {
+      username: username,
+      password: password
+    };
+    
+    try {
+      // Отправляем запрос на сервер
+      const response = await fetch('http://localhost/user/login', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+      
+      // Получаем ответ в виде текста
+      const responseText = await response.text();
+      
+      // Пытаемся распарсить JSON
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (e) {
+        // Если ответ не в формате JSON, просто используем текст
+        responseData = { response: { message: responseText } };
+      }
+      
+      // Проверяем статус ответа
+      if (!response.ok) {
+        // Если сервер вернул ошибку
+        const message = responseData.response?.message || 'Ошибка входа в систему';
+        errorMessage.textContent = message;
+        // Возвращаем кнопку в исходное состояние
+        loginButton.innerHTML = originalButtonText;
+        loginButton.disabled = false;
+        return;
+      }
+      
+      // Успешный вход - получаем информацию о пользователе
+      console.log('Успешный вход:', responseData);
+      
+      // Получаем ID пользователя прямо из ответа на логин
+      let userId = responseData.id || '';
+      console.log('ID пользователя из ответа:', userId);
+      
+      // Получаем JWT токен из ответа
+      let accessToken = '';
+      if (responseData && responseData.token) {
+        accessToken = responseData.token;
+        console.log('Получен JWT токен из ответа');
+        // Сохраняем токен в localStorage для использования в API-запросах
+        localStorage.setItem('jwt-access-token', accessToken);
+      } else {
+        // Если токена нет в ответе, пробуем получить из куки
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.startsWith('jwt-access=')) {
+            accessToken = cookie.substring('jwt-access='.length);
+            localStorage.setItem('jwt-access-token', accessToken);
+            console.log('Получен JWT токен из куки');
+            break;
+          }
+        }
+      }
+      
+      if (!accessToken) {
+        console.error('JWT токен не найден');
+      }
+      
+      // Если ID не получен из ответа на логин, пробуем получить через /user/get
+      if (!userId) {
+        try {
+          // Получаем информацию о текущем пользователе
+          const userInfoResponse = await fetch('http://localhost/user/get', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+          
+          if (userInfoResponse.ok) {
+            const userInfo = await userInfoResponse.json();
+            console.log('userInfo from get endpoint:', userInfo);
+            userId = userInfo.id || '';
+            console.log('Получен ID пользователя:', userId);
+          } else {
+            console.error('Error response from user/get:', userInfoResponse.status, await userInfoResponse.text());
+          }
+        } catch (error) {
+          console.error('Ошибка получения информации о пользователе:', error);
+        }
+      }
+      
+      // Сохраняем информацию о пользователе в localStorage
+      const userData = {
+        username: username,
+        id: userId,
+        isLoggedIn: true,
+        loginTime: new Date().toISOString()
+      };
+      
+      console.log('Сохраняем данные пользователя:', userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Перенаправляем пользователя на главную страницу
+      window.location.href = 'index.html';
+      
+    } catch (error) {
+      console.error('Error:', error);
+      errorMessage.textContent = 'Ошибка при выполнении запроса';
+      // Возвращаем кнопку в исходное состояние
+      loginButton.innerHTML = originalButtonText;
+      loginButton.disabled = false;
+    }
+  }
+</script>
+
+</body>
+</html>

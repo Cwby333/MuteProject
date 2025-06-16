@@ -1,0 +1,102 @@
+stages:
+  - build
+  - test
+  - deploy
+
+# 1) Сборка бинарей всех трёх сервисов
+build_services:
+  stage: build
+  image: golang:1.24-bullseye
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends git gcc libc6-dev librdkafka-dev pkg-config
+  script:
+    - mkdir -p bin
+
+    # music-service
+    - cd backend/music
+    - go mod download
+    - CGO_ENABLED=1 go build -v -o ../../bin/music-service ./cmd
+
+    # sender-service
+    - cd ../sender
+    - go mod download
+    - CGO_ENABLED=1 go build -v -o ../../bin/sender-service ./cmd
+
+    # users-service
+    - cd ../users
+    - go mod download
+    - CGO_ENABLED=0 GOOS=linux go build -v -o ../../bin/users-service ./cmd
+
+    - cd ../../
+    - echo "Build completed."
+  only:
+    - main
+
+# 2) Прогон тестов users-сервиса (нужны Postgres + Redis)
+run_user_tests:
+  stage: test
+  image: golang:1.24-bullseye
+  services:
+    # alias должен совпадать с DB_HOST в окружении
+    - name: postgres:13-alpine
+      alias: users-postgres
+    - name: redis:7-alpine
+      alias: users-redis
+  variables:
+    # Берём из вашего .env
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: qwerty1234
+    POSTGRES_DB: users
+
+    # Переменные, которые ждёт users-сервис
+    DB_HOST: users-postgres
+    DB_PORT: "5432"
+    DB_USER: "$POSTGRES_USER"
+    DB_PASSWORD: "$POSTGRES_PASSWORD"
+    DB_NAME: "$POSTGRES_DB"
+
+    REDIS_HOST: users-redis
+    REDIS_PORT: "6379"
+    REDIS_PASSWORD: redis
+  before_script:
+    # Утилиты для проверки готовности сервисов
+    - apt-get update -qq
+    - apt-get install -y --no-install-recommends postgresql-client redis-tools
+
+    # Ждём PostgreSQL
+    - |
+      until pg_isready -h "$DB_HOST" -U "$POSTGRES_USER"; do
+        echo "Waiting for Postgres…"
+        sleep 1
+      done
+
+    # Ждём Redis
+    - |
+      until redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT" -a "$REDIS_PASSWORD" ping | grep -q PONG; do
+        echo "Waiting for Redis…"
+        sleep 1
+      done
+
+    # Переходим в users-микросервис и тащим зависимости
+    - cd backend/users
+    - go mod download
+
+  script:
+    - echo "=== Running users-service tests in ./tests ==="
+    - go test ./tests/... -race -timeout 30s
+  only:
+    - main
+
+# 3) Деплой через docker-compose (на ветку main)
+deploy_app:
+  stage: deploy
+  image: docker:latest
+  script:
+    - docker info       # проверяем, что докер видит хостовый daemon
+    - docker-compose down --remove-orphans
+    - docker-compose up -d --build
+  environment:
+    name: production
+  only:
+    - main

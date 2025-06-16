@@ -1,0 +1,190 @@
+services:
+  # ----------------------------
+  # API Gateway
+  # ----------------------------
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    environment:
+      - USERS_SERVICE_URL=http://users:8888
+      - MUSIC_SERVICE_URL=http://music:8080
+    ports:
+      - "3001:3000"
+    depends_on:
+      - users
+      - music
+    networks:
+      - app
+
+  # ----------------------------
+  # Nginx (как прокси для API Gateway)
+  # ----------------------------
+  nginx:
+    build:
+      context: ./api-gateway/nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - app
+
+  # ----------------------------
+  # Zookeeper & Kafka
+  # ----------------------------
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+    networks:
+      - app
+
+  kafka:
+    image: bitnami/kafka:2.8.1
+    container_name: kafka
+    environment:
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    networks:
+      - app
+
+  # ----------------------------
+  # Users Microservice + Redis + Postgres
+  # ----------------------------
+  users-postgres:
+    image: postgres:13-alpine
+    container_name: users-postgres
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - users_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app
+
+  users-redis:
+    image: redis:7-alpine
+    container_name: users-redis
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app
+
+  users:
+    build:
+      context: ./backend/users
+      dockerfile: Dockerfile
+    container_name: users
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=users-postgres
+      - DB_PORT=5432
+      - REDIS_HOST=users-redis
+      - REDIS_PORT=6379
+    depends_on:
+      users-postgres:
+        condition: service_healthy
+      users-redis:
+        condition: service_healthy
+    networks:
+      - app
+
+  # ----------------------------
+  # Music Microservice + Postgres
+  # ----------------------------
+  music-postgres:
+    image: postgres:13-alpine
+    container_name: music-postgres
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - music_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app
+
+  music:
+    build:
+      context: ./backend/music
+      dockerfile: Dockerfile
+    container_name: music
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=music-postgres
+      - DB_PORT=5432
+    depends_on:
+      music-postgres:
+        condition: service_healthy
+    networks:
+      - app
+
+  # ----------------------------
+  # Sender service (deferred_tasks → Kafka)
+  # ----------------------------
+  sender:
+    build:
+      context: ./backend/sender
+      dockerfile: Dockerfile
+    container_name: sender
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=users-postgres
+      - DB_PORT=5432
+
+      # ОБЯЗАТЕЛЬНО переопределяем DB_* 
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_DB}
+
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      - kafka
+      - users-postgres
+    networks:
+      - app
+
+volumes:
+  users_pgdata:
+  music_pgdata:
+
+networks:
+  app:
+    driver: bridge

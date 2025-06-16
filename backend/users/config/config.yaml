@@ -1,0 +1,28 @@
+server:
+  address: ":8888"
+  shutdown-timeout: 30s
+  idle-timeout: 2m
+
+postgres:
+  host: "users-postgres"
+  port: 5432
+  db: "users" 
+  user: "postgres"
+  password: "qwerty1234"
+  max-conns: 20
+  min-conns: 5
+
+redis:
+  host: "users-redis"
+  port: 6379
+  db: 0
+  username: "default"
+  password: "redis"
+
+jwt:
+  secret-key: "secretkeyjwtforproject34muteeee"
+  issuer: "d33bcfff-4q32-4b6a-a15d-c258a99046d1"
+  jwt-access:
+    expired: 15m
+  jwt-refresh:
+    expired: 24h

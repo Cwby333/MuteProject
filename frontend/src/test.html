@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Прослушать трек с обложкой</title>
+  <style>
+    body {
+      background: #2f2f2f;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+    img {
+      max-width: 300px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    audio {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Ваш трек</h1>
+  <img id="cover" alt="Обложка трека">
+  <audio id="player" controls></audio>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      try {
+        const response = await fetch('http://localhost/tracks/');
+        const tracks = await response.json();
+        
+        if (!tracks.length) {
+          document.body.innerHTML += '<p>Нет треков для показа.</p>';
+          return;
+        }
+        const { coverUrl, streamUrl, title, artist_id } = tracks[0];
+        // Подставляем в DOM
+        document.getElementById('cover').src = coverUrl;
+        document.getElementById('cover').alt = `${title} — обложка`;
+        const audio = document.getElementById('player');
+        audio.src = streamUrl;
+        audio.load();
+      } catch (err) {
+        console.error(err);
+        document.body.innerHTML += `<p style="color:salmon">Ошибка: ${err.message}</p>`;
+      }
+    });
+  </script>
+
+</body>
+</html>

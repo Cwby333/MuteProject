@@ -1,0 +1,839 @@
+﻿/* Spotify-like Theme */
+
+/* Global Resets and Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #121212; /* Dark background */
+    color: #B3B3B3; /* Light gray text */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* Modern sans-serif */
+    display: flex;
+    flex-direction: column; /* Ensure footer stays at bottom */
+    min-height: 100vh;
+    line-height: 1.6;
+    padding-top: 80px; /* Space for fixed header */
+    padding-bottom: 100px; /* Space for fixed player */
+}
+
+main {
+    flex: 1; /* Allows main content to grow and push footer down */
+    padding: 20px;
+    max-width: 1200px; /* Optional: Limit content width */
+    margin: 0 auto; /* Center content */
+    width: 100%;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+    color: #FFFFFF; /* White headings */
+    font-weight: 600;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+}
+
+a {
+    color: #1DB954; /* Spotify green for links */
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #1ED760; /* Lighter green on hover */
+    text-decoration: underline;
+}
+
+/* Header */
+header {
+    background-color: #000000; /* Black header */
+    padding: 15px 0;
+    border-bottom: 1px solid #282828; /* Subtle border */
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: none; /* Remove shadow */
+}
+
+.header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.logo {
+    /* Add styles for your logo if needed */
+    color: #FFFFFF;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav ul li a {
+    color: #B3B3B3;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+nav ul li a:hover,
+nav ul li a.active /* Add .active class for current page */
+{
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+
+/* Cards */
+.custom-card {
+    background-color: #181818; /* Slightly lighter dark background */
+    border: none; /* Remove border */
+    border-radius: 8px; /* Slightly smaller radius */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Minimal shadow */
+    color: #FFFFFF;
+    transition: background-color 0.3s ease;
+    overflow: hidden;
+    height: auto; /* Adjust height based on content */
+    display: flex;
+    flex-direction: column;
+}
+
+.custom-card:hover {
+    background-color: #282828; /* Lighter on hover */
+    transform: none; /* Remove transform */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Slightly more shadow on hover */
+}
+
+.custom-img {
+    width: 100%; /* Full width */
+    height: auto; /* Maintain aspect ratio */
+    aspect-ratio: 1 / 1; /* Make image square */
+    object-fit: cover;
+    display: block;
+    box-shadow: none; /* Remove shadow */
+    border-radius: 8px 8px 0 0; /* Round top corners */
+    margin: 0;
+    transition: transform 0.3s ease;
+}
+
+.custom-card:hover .custom-img {
+    transform: none; /* No zoom on hover */
+}
+
+.card-body {
+    text-align: left; /* Align text left */
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Push button down */
+    position: relative;
+}
+
+.card-title {
+    font-size: 1rem; /* Adjust size */
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 5px; /* Smaller margin */
+    /* Keep text clamp */
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* One line title */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-text {
+    font-size: 0.85rem;
+    color: #B3B3B3;
+    margin-bottom: 10px;
+     /* Keep text clamp */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Two lines for description */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.play-btn {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    width: 40px; /* Smaller button */
+    height: 40px;
+    background-color: #1DB954; /* Spotify green */
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000; /* Black icon */
+    opacity: 0; /* Hidden by default */
+    transform: translateY(10px); /* Start slightly lower */
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.custom-card:hover .play-btn {
+    opacity: 1;
+    transform: translateY(0); /* Move up on hover */
+}
+
+.play-btn:hover {
+    background-color: #1ED760; /* Lighter green */
+    transform: scale(1.05); /* Slight scale effect */
+}
+
+.play-icon {
+    font-size: 18px; /* Adjust icon size */
+     /* Ensure the icon fits well if using Font Awesome or similar */
+    line-height: 1;
+}
+
+
+/* Login/Signup Forms */
+.login-container, .signup-container {
+    max-width: 400px; /* Smaller container */
+    width: 100%;
+    margin: 40px auto; /* Center vertically */
+}
+
+.login-box, .signup-box {
+    background-color: #181818;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    border: none;
+}
+
+.mute-logo, .spotify-logo {
+    width: 40px; /* Adjust size */
+    margin-bottom: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    filter: none; /* Remove filter */
+}
+
+.login-title, .signup-title {
+    font-size: 1.5rem;
+    font-weight: 700; /* Bolder */
+    color: #FFFFFF;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Buttons */
+.btn { /* General button style */
+    border: none;
+    border-radius: 500px; /* Pill shape */
+    padding: 12px 30px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-primary { /* Main action button */
+    background-color: #1DB954;
+    color: #000000; /* Black text on green */
+}
+
+.btn-primary:hover {
+    background-color: #1ED760;
+    transform: scale(1.03); /* Slight scale */
+    color: #000000;
+}
+
+.btn-secondary { /* Secondary action button */
+    background-color: transparent;
+    color: #FFFFFF;
+    border: 1px solid #535353; /* Gray border */
+}
+
+.btn-secondary:hover {
+    border-color: #FFFFFF;
+    color: #FFFFFF;
+    transform: scale(1.03);
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #535353;
+    border-radius: 500px; /* Pill shape */
+    padding: 10px;
+    font-size: 0.9rem;
+    color: #FFFFFF;
+    background-color: transparent;
+    transition: all 0.2s ease;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.social-btn:hover {
+    border-color: #FFFFFF;
+    transform: none; /* No lift */
+}
+
+.social-icon {
+    width: 18px;
+    margin-right: 10px;
+    filter: invert(1); /* Make icons white if they are black */
+}
+
+.login-btn, .signup-btn { /* Apply primary button style */
+    background-color: #1DB954;
+    color: #000000;
+    border: none;
+    border-radius: 500px;
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    margin-top: 1rem; /* Add space above */
+}
+
+.login-btn:hover, .signup-btn:hover {
+    background-color: #1ED760;
+    transform: scale(1.03);
+}
+
+
+/* Forms */
+.divider {
+    text-align: center;
+    margin: 25px 0;
+    color: #B3B3B3;
+    font-size: 0.8rem;
+    position: relative;
+}
+
+.divider-line {
+    display: none; /* Hide the line */
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    display: inline-block;
+    width: 40%; /* Adjust width */
+    height: 1px;
+    background-color: #282828; /* Dark gray line */
+    vertical-align: middle;
+    margin: 0 5px;
+}
+
+
+.form-label {
+    font-size: 0.85rem;
+    color: #FFFFFF;
+    margin-bottom: 6px;
+    font-weight: 500;
+    display: block; /* Ensure label is on its own line */
+}
+
+.form-control {
+    background-color: #333333; /* Darker input background */
+    border: 1px solid transparent; /* Remove border */
+    border-radius: 4px; /* Less rounded */
+    color: #FFFFFF;
+    padding: 12px 15px;
+    transition: background-color 0.2s ease;
+    width: 100%; /* Full width */
+    margin-bottom: 1rem; /* Space below input */
+}
+
+.form-control:focus {
+    background-color: #404040; /* Slightly lighter on focus */
+    border-color: transparent;
+    box-shadow: none; /* No focus shadow */
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #B3B3B3; /* Light gray placeholder */
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group .btn { /* Adjust button within input group */
+   position: absolute;
+   right: 0;
+   top: 0;
+   height: 100%;
+   border-radius: 0 4px 4px 0; /* Adjust corners */
+   padding: 0 15px;
+   background-color: #404040;
+   border: none;
+   color: #B3B3B3;
+   z-index: 5;
+}
+
+.input-group .btn:hover {
+    background-color: #535353;
+    color: #FFFFFF;
+}
+
+.input-group .form-control {
+    padding-right: 50px; /* Make space for button */
+}
+
+
+.toggle-password {
+    /* Styling for toggle button if needed */
+    color: #B3B3B3;
+}
+
+.eye-icon {
+    font-size: 1rem;
+}
+
+.form-check {
+    margin-bottom: 1rem;
+}
+
+.form-check-input {
+    background-color: #535353;
+    border: 1px solid #535353;
+    border-radius: 4px;
+    margin-top: 0.2em; /* Align better with label */
+}
+
+.form-check-input:checked {
+    background-color: #1DB954; /* Green check */
+    border-color: #1DB954;
+}
+
+.form-check-input:focus {
+    box-shadow: none;
+    border-color: #1DB954;
+}
+
+.form-check-label {
+    font-size: 0.85rem;
+    color: #B3B3B3;
+}
+
+/* Links within forms */
+.forgot-password, .signup-text, .login-text /* Added .login-text */ {
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 1.5rem;
+}
+
+.forgot-password a, .signup-text a, .login-text a {
+    color: #FFFFFF; /* White link text */
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.forgot-password a:hover, .signup-text a:hover, .login-text a:hover {
+    color: #1DB954; /* Green on hover */
+    text-decoration: underline;
+}
+
+
+/* Footer Text (within forms) */
+.footer-text {
+    font-size: 0.75rem;
+    color: #B3B3B3;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.footer-text a {
+    color: #B3B3B3;
+    text-decoration: underline;
+}
+.footer-text a:hover {
+    color: #FFFFFF;
+}
+
+/* General Footer */
+.page-footer {
+    background-color: #000000; /* Black footer */
+    color: #B3B3B3;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 0.85rem;
+    margin-top: 40px; /* Space above footer */
+    border-top: 1px solid #282828;
+}
+
+.footer-divider {
+    border-top: 1px solid #282828;
+    margin: 15px auto;
+    width: 80%;
+}
+
+.footer-copyright {
+    color: #535353; /* Darker gray for copyright */
+    font-size: 0.75rem;
+}
+
+/* Music Player Styles */
+.player, .music-player { /* Combine selectors if they serve the same purpose */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #181818; /* Dark background for player */
+    border-top: 1px solid #282828; /* Subtle border */
+    padding: 15px 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.player-content {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between elements */
+    flex-grow: 1; /* Allow content to take available space */
+    min-width: 200px; /* Ensure minimum width for track info */
+}
+
+.player-album-cover {
+    width: 56px; /* Standard Spotify size */
+    height: 56px;
+    border-radius: 4px;
+    object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.track-info {
+    /* No specific styles needed if using flex gap */
+}
+
+.track-title {
+    color: #FFFFFF;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-artist {
+    color: #B3B3B3;
+    font-size: 0.75rem;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-controls {
+    display: flex;
+    flex-direction: column; /* Stack buttons and progress */
+    align-items: center;
+    justify-content: center;
+    flex-grow: 2; /* Allow controls to take more space */
+}
+
+.player-control-buttons {
+     display: flex;
+     align-items: center;
+     gap: 15px;
+     margin-bottom: 8px; /* Space between buttons and progress */
+}
+
+.btn-player {
+    background: none;
+    border: none;
+    color: #B3B3B3;
+    font-size: 18px; /* Icon size */
+    cursor: pointer;
+    transition: color 0.2s ease;
+    padding: 5px; /* Add padding for easier clicking */
+}
+
+.btn-player:hover {
+    color: #FFFFFF;
+}
+
+.play-pause-btn {
+    background-color: #FFFFFF; /* White background for play/pause */
+    color: #000000; /* Black icon */
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 16px; /* Smaller icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.play-pause-btn:hover {
+    transform: scale(1.05);
+    background-color: #F0F0F0; /* Slightly off-white on hover */
+     color: #000000;
+}
+
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 500px; /* Limit progress bar width */
+}
+
+.current-time, .duration {
+    color: #B3B3B3;
+    font-size: 0.75rem;
+    min-width: 35px; /* Ensure space for time */
+    text-align: center;
+}
+
+.progress-bar {
+    flex-grow: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px; /* Thinner bar */
+    background: #535353; /* Gray background */
+    border-radius: 2px;
+    cursor: pointer;
+    outline: none;
+}
+
+/* --- Webkit (Chrome, Safari) --- */
+.progress-bar::-webkit-slider-runnable-track {
+    height: 4px;
+    background: #535353;
+    border-radius: 2px;
+}
+
+.progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px; /* Smaller thumb */
+    height: 12px;
+    background: #FFFFFF; /* White thumb */
+    border-radius: 50%;
+    margin-top: -4px; /* Center thumb vertically */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.2s ease;
+}
+.progress-container:hover .progress-bar::-webkit-slider-thumb {
+    opacity: 1; /* Show thumb on container hover */
+}
+
+
+/* --- Firefox --- */
+.progress-bar::-moz-range-track {
+    height: 4px;
+    background: #535353;
+    border-radius: 2px;
+}
+
+.progress-bar::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    border: none;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.2s ease;
+}
+.progress-container:hover .progress-bar::-moz-range-thumb {
+     opacity: 1; /* Show thumb on container hover */
+}
+
+
+/* Style the progress fill (tricky, often needs JS) */
+/* You might need JavaScript to update a background gradient or a separate div */
+
+
+.player-options {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 150px; /* Ensure minimum width */
+    justify-content: flex-end; /* Align options to the right */
+}
+
+.volume-bar {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px; /* Shorter volume bar */
+    height: 4px;
+    background: #535353;
+    border-radius: 2px;
+    cursor: pointer;
+    outline: none;
+}
+
+/* --- Webkit (Chrome, Safari) --- */
+.volume-bar::-webkit-slider-runnable-track {
+    height: 4px;
+    background: #535353;
+    border-radius: 2px;
+}
+.volume-bar::-webkit-slider-thumb {
+     -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    margin-top: -4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.player-options:hover .volume-bar::-webkit-slider-thumb {
+    opacity: 1;
+}
+
+/* --- Firefox --- */
+.volume-bar::-moz-range-track {
+    height: 4px;
+    background: #535353;
+    border-radius: 2px;
+}
+.volume-bar::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    border: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.player-options:hover .volume-bar::-moz-range-thumb {
+    opacity: 1;
+}
+
+
+/* Favorite Button Specific Style (if outside card) */
+.favorite-button {
+    background: none;
+    border: none;
+    color: #B3B3B3;
+    font-size: 20px; /* Adjust size */
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.favorite-button.favorited {
+    color: #1DB954; /* Green when favorited */
+}
+
+.favorite-button:hover {
+    color: #FFFFFF;
+    transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px; /* Adjust padding for smaller header */
+        padding-bottom: 150px; /* More space for player potentially stacking */
+    }
+
+    .header-wrapper {
+        padding: 0 15px;
+    }
+
+    main {
+        padding: 15px;
+    }
+
+    .player {
+        flex-direction: column; /* Stack player elements */
+        height: auto;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .player-content {
+        width: 100%;
+        justify-content: center; /* Center track info */
+        min-width: auto;
+    }
+
+    .player-controls {
+        width: 100%;
+        order: 1; /* Move controls below track info */
+    }
+
+    .player-options {
+        width: 100%;
+        justify-content: center; /* Center options */
+        order: 2;
+        min-width: auto;
+    }
+
+    .progress-container {
+        max-width: none; /* Full width on mobile */
+    }
+}
+
+@media (max-width: 480px) {
+     .player-album-cover {
+        display: none; /* Hide album cover on very small screens */
+    }
+    .player-content {
+        justify-content: center;
+        text-align: center;
+    }
+     .btn-player {
+        font-size: 16px; /* Smaller icons */
+    }
+    .play-pause-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+     .current-time, .duration {
+        font-size: 0.7rem;
+        min-width: 30px;
+    }
+    .player-options {
+         gap: 10px;
+    }
+     .volume-bar {
+        width: 60px;
+    }
+}
+
+/* Utility class for hiding elements visually but keeping them accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
